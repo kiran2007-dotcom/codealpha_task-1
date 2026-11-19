@@ -1,0 +1,179 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered customer or administrator account profile.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "minLength": 3, "maxLength": 200 },
+        "role": { "type": "string", "enum": ["customer", "admin"] },
+        "phone": { "type": "string", "maxLength": 30 },
+        "defaultAddress": {
+          "type": "object",
+          "description": "Saved shipping address for the customer."
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role", "createdAt", "updatedAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Authoritative administrator privilege record used by Firestore security rules.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "format": "email", "minLength": 3, "maxLength": 200 },
+        "grantedBy": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "grantedBy", "createdAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product catalog category.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "slug": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[a-z0-9-]+$" },
+        "description": { "type": "string", "maxLength": 500 },
+        "displayOrder": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "slug", "description", "displayOrder", "createdAt", "updatedAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Storefront product record with pricing, inventory, and category association.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 140 },
+        "slug": { "type": "string", "minLength": 1, "maxLength": 160, "pattern": "^[a-z0-9-]+$" },
+        "description": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "price": { "type": "number" },
+        "stock": { "type": "integer" },
+        "categoryId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "categoryName": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "imageUrl": { "type": "string", "minLength": 1, "maxLength": 1500 },
+        "featured": { "type": "boolean" },
+        "isNewArrival": { "type": "boolean" },
+        "sku": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "specs": { "type": "string", "maxLength": 500 },
+        "lastOrderId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "id",
+        "name",
+        "slug",
+        "description",
+        "price",
+        "stock",
+        "categoryId",
+        "categoryName",
+        "imageUrl",
+        "featured",
+        "isNewArrival",
+        "sku",
+        "specs",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Cart": {
+      "title": "Cart",
+      "description": "Persistent shopping cart bound to an authenticated customer.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "items": {
+          "type": "array",
+          "description": "Bounded list of productId and quantity pairs (max 50)."
+        },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "updatedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Completed customer purchase order with immutable line items and shipping details.",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "customerName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "customerEmail": { "type": "string", "format": "email", "minLength": 3, "maxLength": 200 },
+        "customerPhone": { "type": "string", "minLength": 5, "maxLength": 30 },
+        "shippingAddress": {
+          "type": "object",
+          "description": "Validated customer shipping address."
+        },
+        "items": {
+          "type": "array",
+          "description": "Ordered line items (1 to 50 items)."
+        },
+        "subtotal": { "type": "number" },
+        "shippingCost": { "type": "number" },
+        "total": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "processing", "shipped", "delivered", "cancelled"]
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["card_standard", "cash_on_delivery"]
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "orderId",
+        "userId",
+        "customerName",
+        "customerEmail",
+        "customerPhone",
+        "shippingAddress",
+        "items",
+        "subtotal",
+        "shippingCost",
+        "total",
+        "status",
+        "paymentMethod",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Customer and admin profile documents isolated per user."
+    },
+    "/admins/{userId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Authoritative admin role documents checked by Firestore rules."
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Publicly readable product categories managed by admins."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Publicly readable product catalog managed by admins with atomic stock deduction on checkout."
+    },
+    "/carts/{userId}": {
+      "schema": { "$ref": "#/entities/Cart" },
+      "description": "Private customer shopping cart persisted per user ID."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer purchase orders readable by owner or admin, writable on create by owner and status-updatable by admin."
+    }
+  }
+}

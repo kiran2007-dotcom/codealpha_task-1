@@ -1,0 +1,6 @@
+{
+  "name": "Kastle & Form",
+  "description": "Full-stack e-commerce store for architectural lighting, studio audio, furniture, and everyday objects with Firebase Authentication, Cloud Firestore, Firebase Storage, and an Admin Dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
